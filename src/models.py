@@ -12,3 +12,10 @@ class User(BaseModel):
     address: str
     email: str
     password: str
+
+class Message(BaseModel):
+    id: Optional[str] = None
+    user_sent_id: str
+    user_received_id: str
+    title: str
+    description: str
