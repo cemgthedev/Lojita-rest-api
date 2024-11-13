@@ -226,3 +226,32 @@ async def delete_message(id: str):
                 return {"message": "Message not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@app.post("/products")
+async def create_product(product: Product):
+    try:
+        seller_exist = False;
+        
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == product.seller_id:
+                    seller_exist = True;
+                    break;
+        
+        if seller_exist:
+            # Escrever os dados no arquivo CSV
+            with open(path_directories["products"], mode="a", newline="", encoding="utf-8") as file:
+                writer = csv.DictWriter(file, fieldnames=headers["products"]);
+                
+                # Gerando id aleatório
+                product.id = generate_id(16);
+                
+                # Adicionar a linha com os dados do usuário
+                writer.writerow(dict(product));
+            # Aqui, `user` é uma instância da classe `User` contendo os dados da requisição
+            return {"message": "Product created successfully", "data": product};
+        else:
+            return {"message": "User not found"};
+    except Exception as e:
+        return {"error": str(e)}

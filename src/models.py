@@ -21,3 +21,11 @@ class Message(BaseModel):
     title: str
     description: str
     created_at: Optional[date] = None
+    
+class Product(BaseModel):
+    id: Optional[str] = None
+    seller_id: str
+    title: str
+    description: str
+    price: float
+    quantity: int
