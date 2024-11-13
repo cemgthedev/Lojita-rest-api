@@ -266,4 +266,34 @@ async def get_product(id: str):
                     return {"product": row};
             return {"message": "Product not found"};
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)};
+    
+@app.put("/products/{id}")
+async def update_product(id: str, product: Product):
+    try:
+        with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            updated = False;
+            
+            for row in rows:
+                if row["id"] == id:
+                    row["title"] = product.title;
+                    row["description"] = product.description;
+                    row["price"] = product.price;
+                    row["quantity"] = product.quantity;
+                    
+                    updated = True;
+                    break;
+            
+            if updated:
+                with open(path_directories["products"], mode="w", newline="", encoding="utf-8") as file:
+                    writer = csv.DictWriter(file, fieldnames=headers["products"]);
+                    writer.writeheader();
+                    writer.writerows(rows);
+                    
+                return {"message": "Product updated successfully"};
+            else:
+                return {"message": "Product not found"};
+    except Exception as e:
+        return {"error": str(e)};
