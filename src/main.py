@@ -50,7 +50,7 @@ async def create_user(user: User):
             # Adicionar a linha com os dados do usuário
             writer.writerow(dict(user));
         # Aqui, `user` é uma instância da classe `User` contendo os dados da requisição
-        return {"message": "User created successfully", "user": user};
+        return {"message": "User created successfully", "data": user};
     except Exception as e:
         return {"error": str(e)}
     
@@ -125,3 +125,35 @@ async def delete_user(id: str):
                 return {"message": "User not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@app.post("/messages")
+async def create_user(message: Message):
+    try:
+        sent_exist = False;
+        receiver_exist = False;
+        
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == message.user_sent_id:
+                    sent_exist = True;
+                if row["id"] == message.user_received_id:
+                    receiver_exist = True;
+                if sent_exist and receiver_exist:
+                    break;
+        
+        if sent_exist and receiver_exist:
+            with open(path_directories["messages"], mode="a", newline="", encoding="utf-8") as file:
+                writer = csv.DictWriter(file, fieldnames=headers["messages"]);
+                
+                # Gerando id aleatório
+                message.id = generate_id(16);
+                
+                # Adicionar a linha com os dados da requisição
+                writer.writerow(dict(message));
+                
+                return {"message": "Message created successfully", "data": message};
+        else:
+            return {"message": "User not found"};
+    except Exception as e:
+        return {"error": str(e)}
