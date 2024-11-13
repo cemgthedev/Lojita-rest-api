@@ -197,3 +197,29 @@ async def update_message(id: str, message: Message):
                 return {"message": "Message not found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@app.delete("/messages/{id}")
+async def delete_message(id: str):
+    try:
+        with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            deleted = False;
+            
+            for row in rows:
+                if row["id"] == id:
+                    rows.remove(row);
+                    deleted = True;
+                    break;
+            
+            if deleted:
+                with open(path_directories["messages"], mode="w", newline="", encoding="utf-8") as file:
+                    writer = csv.DictWriter(file, fieldnames=headers["messages"]);
+                    writer.writeheader();
+                    writer.writerows(rows);
+                    
+                return {"message": "Message deleted successfully"};
+            else:
+                return {"message": "Message not found"};
+    except Exception as e:
+        return {"error": str(e)};
