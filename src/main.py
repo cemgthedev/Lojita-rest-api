@@ -297,3 +297,29 @@ async def update_product(id: str, product: Product):
                 return {"message": "Product not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@app.delete("/products/{id}")
+async def delete_product(id: str):
+    try:
+        with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            deleted = False;
+            
+            for row in rows:
+                if row["id"] == id:
+                    rows.remove(row);
+                    deleted = True;
+                    break;
+            
+            if deleted:
+                with open(path_directories["products"], mode="w", newline="", encoding="utf-8") as file:
+                    writer = csv.DictWriter(file, fieldnames=headers["products"]);
+                    writer.writeheader();
+                    writer.writerows(rows);
+                    
+                return {"message": "Product deleted successfully"};
+            else:
+                return {"message": "Product not found"};
+    except Exception as e:
+        return {"error": str(e)};
