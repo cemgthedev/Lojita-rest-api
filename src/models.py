@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import date
     
 # Classe User
 class User(BaseModel):
@@ -19,3 +20,4 @@ class Message(BaseModel):
     user_received_id: str
     title: str
     description: str
+    created_at: Optional[date] = None

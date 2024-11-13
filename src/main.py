@@ -1,3 +1,4 @@
+import datetime as dt
 from models import *
 from utils.generate_tables import generate_tables
 from utils.generate_id import generate_id
@@ -10,7 +11,7 @@ app = FastAPI()
 # Define os cabeçalhos para cada tabela
 headers = {
     "users": ["id", "name", "year", "cpf", "gender", "phone_number", "address", "email", "password"],
-    "messages": ["id", "user_sent_id", "user_received_id", "title", "description"],
+    "messages": ["id", "user_sent_id", "user_received_id", "title", "description", "created_at"],
     "products": ["id", "seller_id", "title", "description", "price", "quantity"],
     "favorites": ["id", "user_id", "product_id"],
     "sales": ["id", "seller_id", "buyer_id", "product_id", "date"]
@@ -148,6 +149,8 @@ async def create_message(message: Message):
                 
                 # Gerando id aleatório
                 message.id = generate_id(16);
+                # Adicionando data e hora do envio da mensagem
+                message.created_at = dt.datetime.now();
                 
                 # Adicionar a linha com os dados da requisição
                 writer.writerow(dict(message));
