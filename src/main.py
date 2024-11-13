@@ -53,3 +53,15 @@ async def create_user(user: User):
         return {"message": "User created successfully", "user": user};
     except Exception as e:
         return {"error": str(e)}
+    
+@app.get("/users/{id}")
+async def get_user(id: str):
+    try:
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == id:
+                    return {"user": row};
+            return {"message": "User not found"};
+    except Exception as e:
+        return {"error": str(e)}
