@@ -94,8 +94,34 @@ async def update_user(id: str, user: User):
                     writer.writeheader();
                     writer.writerows(rows);
                     
-                return {"message": "User updated successfully", "user": user};
+                return {"message": "User updated successfully"};
             else:
                 return {"message": "User not found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@app.delete("/users/{id}")
+async def delete_user(id: str):
+    try:
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            deleted = False;
+            
+            for row in rows:
+                if row["id"] == id:
+                    rows.remove(row);
+                    deleted = True;
+                    break;
+            
+            if deleted:
+                with open(path_directories["users"], mode="w", newline="", encoding="utf-8") as file:
+                    writer = csv.DictWriter(file, fieldnames=headers["users"]);
+                    writer.writeheader();
+                    writer.writerows(rows);
+                    
+                return {"message": "User deleted successfully"};
+            else:
+                return {"message": "User not found"};
+    except Exception as e:
+        return {"error": str(e)};
