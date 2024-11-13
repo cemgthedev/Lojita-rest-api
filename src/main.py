@@ -127,7 +127,7 @@ async def delete_user(id: str):
         return {"error": str(e)};
     
 @app.post("/messages")
-async def create_user(message: Message):
+async def create_message(message: Message):
     try:
         sent_exist = False;
         receiver_exist = False;
@@ -155,5 +155,17 @@ async def create_user(message: Message):
                 return {"message": "Message created successfully", "data": message};
         else:
             return {"message": "User not found"};
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/messages/{id}")
+async def get_message(id: str):
+    try:
+        with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == id:
+                    return {"message": row};
+            return {"message": "Message not found"};
     except Exception as e:
         return {"error": str(e)}
