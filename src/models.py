@@ -29,3 +29,4 @@ class Product(BaseModel):
     description: str
     price: float
     quantity: int
+    image_url: Optional[str] = None

@@ -12,7 +12,7 @@ app = FastAPI()
 headers = {
     "users": ["id", "name", "year", "cpf", "gender", "phone_number", "address", "email", "password"],
     "messages": ["id", "user_sent_id", "user_received_id", "title", "description", "created_at"],
-    "products": ["id", "seller_id", "title", "description", "price", "quantity"],
+    "products": ["id", "seller_id", "title", "description", "price", "quantity", "image_url"],
     "favorites": ["id", "user_id", "product_id"],
     "sales": ["id", "seller_id", "buyer_id", "product_id", "date"]
 };
@@ -282,6 +282,7 @@ async def update_product(id: str, product: Product):
                     row["description"] = product.description;
                     row["price"] = product.price;
                     row["quantity"] = product.quantity;
+                    row["image_url"] = product.image_url;
                     
                     updated = True;
                     break;
