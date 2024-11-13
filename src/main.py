@@ -255,3 +255,15 @@ async def create_product(product: Product):
             return {"message": "User not found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@app.get("/products/{id}")
+async def get_product(id: str):
+    try:
+        with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == id:
+                    return {"product": row};
+            return {"message": "Product not found"};
+    except Exception as e:
+        return {"error": str(e)}
