@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date
+from datetime import datetime as dt
     
 # Classe User
 class User(BaseModel):
@@ -20,7 +20,7 @@ class Message(BaseModel):
     user_received_id: str
     title: str
     description: str
-    created_at: Optional[date] = None
+    created_at: Optional[dt] = None
     
 class Product(BaseModel):
     id: Optional[str] = None
@@ -41,4 +41,4 @@ class Sale(BaseModel):
     seller_id: str
     buyer_id: str
     product_id: str
-    created_at: Optional[date] = None
+    created_at: Optional[dt] = None
