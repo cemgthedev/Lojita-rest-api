@@ -81,3 +81,17 @@ async def delete_favorite(id: str):
                 return {"message": "Favorite not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@router.get("/favorites")
+async def get_favorites():
+    try:
+        with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            
+            if len(rows) > 0:
+                return {"favorites": rows};
+            else:
+                return {"message": "No favorites found"};
+    except Exception as e:
+        return {"error": str(e)}
