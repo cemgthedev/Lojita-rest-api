@@ -107,3 +107,17 @@ async def delete_message(id: str):
                 return {"message": "Message not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@router.get("/messages")
+async def get_messages():
+    try:
+        with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            
+            if len(rows) > 0:
+                return {"messages": rows};
+            else:
+                return {"message": "No messages found"};
+    except Exception as e:
+        return {"error": str(e)}
