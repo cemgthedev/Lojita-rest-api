@@ -95,3 +95,14 @@ async def get_favorites():
                 return {"message": "No favorites found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@router.get("/quantity/favorites")
+async def get_quantity_favorites():
+    try:
+        with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+        
+            return {"quantity": len(rows)};
+    except Exception as e:
+        return {"error": str(e)}
