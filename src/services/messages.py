@@ -121,3 +121,14 @@ async def get_messages():
                 return {"message": "No messages found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@router.get("/quantity/messages")
+async def get_quantity_messages():
+    try:
+        with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+        
+            return {"quantity": len(rows)};
+    except Exception as e:
+        return {"error": str(e)}
