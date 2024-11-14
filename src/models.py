@@ -30,3 +30,8 @@ class Product(BaseModel):
     price: float
     quantity: int
     image_url: Optional[str] = None
+    
+class Favorite(BaseModel):
+    id: Optional[str] = None
+    user_id: str
+    product_id: str
