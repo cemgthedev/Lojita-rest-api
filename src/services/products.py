@@ -2,6 +2,7 @@ from models import Product
 from utils.generate_id import generate_id
 from services.configs import headers, path_directories
 import csv
+import hashlib
 
 from fastapi import APIRouter
 
@@ -127,5 +128,23 @@ async def get_quantity_products():
             rows = list(reader);
         
             return {"quantity": len(rows)};
+    except Exception as e:
+        return {"error": str(e)}
+    
+@router.get("/hash256/products")
+async def get_hash256_products():
+    try:
+        with open(path_directories["products"], mode="rb") as file:
+            hash256 = hashlib.sha256();
+            
+            # Tamanho de 100kb para calculo do hash
+            kbytes = 100 * 1024
+            
+            # Lendo o arquivo em blocos de 100kb para evitar o uso de muita memória e atualizando cálculo do hash
+            for block in iter(lambda: file.read(kbytes), b''):
+                hash256.update(block);
+            
+            # Retornando o hash 256 em formato hexadecimal
+            return {"hash256": hash256.hexdigest()};
     except Exception as e:
         return {"error": str(e)}
