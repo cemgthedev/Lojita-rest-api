@@ -59,7 +59,6 @@ async def update_product(id: str, product: Product):
                 if row["id"] == id:
                     row["title"] = product.title;
                     row["description"] = product.description;
-                    row["category"] = product.category;
                     row["price"] = product.price;
                     row["quantity"] = product.quantity;
                     row["image_url"] = product.image_url;

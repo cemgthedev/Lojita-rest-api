@@ -27,7 +27,6 @@ class Product(BaseModel):
     seller_id: str
     title: str
     description: str
-    category: str
     price: float
     quantity: int
     image_url: Optional[str] = None
