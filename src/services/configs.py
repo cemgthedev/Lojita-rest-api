@@ -4,7 +4,7 @@ headers = {
     "messages": ["id", "user_sent_id", "user_received_id", "title", "description", "created_at"],
     "products": ["id", "seller_id", "title", "description", "price", "quantity", "image_url"],
     "favorites": ["id", "user_id", "product_id"],
-    "sales": ["id", "seller_id", "buyer_id", "product_id", "created_at"]
+    "sales": ["id", "seller_id", "buyer_id", "product_id", "quantity", "created_at"]
 };
 
 # Nomeando diretório de armazenamento dos dados

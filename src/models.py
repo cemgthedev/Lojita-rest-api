@@ -41,4 +41,5 @@ class Sale(BaseModel):
     seller_id: str
     buyer_id: str
     product_id: str
+    quantity: int
     created_at: Optional[dt] = None
