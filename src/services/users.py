@@ -89,6 +89,59 @@ async def delete_user(id: str):
                     writer = csv.DictWriter(file, fieldnames=headers["users"]);
                     writer.writeheader();
                     writer.writerows(rows);
+                
+                # Removendo os dados relacionados ao usuário
+                with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
+                    reader = csv.DictReader(file);
+                    rows = list(reader);
+                    
+                    for row in rows:
+                        if row["user_sent_id"] == id or row["user_received_id"] == id:
+                            rows.remove(row);
+                    
+                    with open(path_directories["messages"], mode="w", newline="", encoding="utf-8") as file:
+                        writer = csv.DictWriter(file, fieldnames=headers["messages"]);
+                        writer.writeheader();
+                        writer.writerows(rows);
+                
+                with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+                    reader = csv.DictReader(file);
+                    rows = list(reader);
+                    
+                    for row in rows:
+                        if row["seller_id"] == id:
+                            rows.remove(row);
+                    
+                    with open(path_directories["products"], mode="w", newline="", encoding="utf-8") as file:
+                        writer = csv.DictWriter(file, fieldnames=headers["products"]);
+                        writer.writeheader();
+                        writer.writerows(rows);
+                        
+                with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
+                    reader = csv.DictReader(file);
+                    rows = list(reader);
+                    
+                    for row in rows:
+                        if row["user_id"] == id:
+                            rows.remove(row);
+                    
+                    with open(path_directories["favorites"], mode="w", newline="", encoding="utf-8") as file:
+                        writer = csv.DictWriter(file, fieldnames=headers["favorites"]);
+                        writer.writeheader();
+                        writer.writerows(rows);
+                    
+                with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
+                    reader = csv.DictReader(file);
+                    rows = list(reader);
+                    
+                    for row in rows:
+                        if row["seller_id"] == id or row["buyer_id"] == id:
+                            rows.remove(row);
+                    
+                    with open(path_directories["sales"], mode="w", newline="", encoding="utf-8") as file:
+                        writer = csv.DictWriter(file, fieldnames=headers["sales"]);
+                        writer.writeheader();
+                        writer.writerows(rows);
                     
                 return {"message": "User deleted successfully"};
             else:

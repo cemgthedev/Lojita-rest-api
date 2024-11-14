@@ -53,6 +53,7 @@ async def create_sale(sale: Sale):
                 writer.writerow(dict(sale));
             return {"message": "Sale created successfully", "data": sale};
         else:
+            print(seller_exist, buyer_exist, product_exist)
             return {"message": "Seller, buyer or product not found"};
     except Exception as e:
         return {"error": str(e)}
