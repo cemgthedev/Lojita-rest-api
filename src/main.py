@@ -362,3 +362,15 @@ async def create_favorite(favorite: Favorite):
             return {"message": "User or product not found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@app.get("/favorites/{id}")
+async def get_favorite(id: str):
+    try:
+        with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == id:
+                    return {"favorite": row};
+            return {"message": "Favorite not found"};
+    except Exception as e:
+        return {"error": str(e)};
