@@ -324,3 +324,41 @@ async def delete_product(id: str):
                 return {"message": "Product not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@app.post("/favorites")
+async def create_favorite(favorite: Favorite):
+    try:
+        user_exist = False;
+        
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == favorite.user_id:
+                    user_exist = True;
+                    break;
+                
+        product_exist = False;
+        
+        with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == favorite.product_id:
+                    product_exist = True;
+                    break;
+        
+        if user_exist and product_exist:
+            # Escrever os dados no arquivo CSV
+            with open(path_directories["favorites"], mode="a", newline="", encoding="utf-8") as file:
+                writer = csv.DictWriter(file, fieldnames=headers["favorites"]);
+                
+                # Gerando id aleatório
+                favorite.id = generate_id(16);
+                
+                # Adicionar a linha com os dados do usuário
+                writer.writerow(dict(favorite));
+            # Aqui, `user` é uma instância da classe `User` contendo os dados da requisição
+            return {"message": "Favorite created successfully", "data": favorite};
+        else:
+            return {"message": "User or product not found"};
+    except Exception as e:
+        return {"error": str(e)}
