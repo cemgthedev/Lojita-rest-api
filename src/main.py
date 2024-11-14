@@ -374,3 +374,29 @@ async def get_favorite(id: str):
             return {"message": "Favorite not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@app.delete("/favorites/{id}")
+async def delete_favorite(id: str):
+    try:
+        with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            deleted = False;
+            
+            for row in rows:
+                if row["id"] == id:
+                    rows.remove(row);
+                    deleted = True;
+                    break;
+            
+            if deleted:
+                with open(path_directories["favorites"], mode="w", newline="", encoding="utf-8") as file:
+                    writer = csv.DictWriter(file, fieldnames=headers["favorites"]);
+                    writer.writeheader();
+                    writer.writerows(rows);
+                    
+                return {"message": "Favorite deleted successfully"};
+            else:
+                return {"message": "Favorite not found"};
+    except Exception as e:
+        return {"error": str(e)};
