@@ -446,3 +446,15 @@ async def create_sale(sale: Sale):
             return {"message": "Seller, buyer or product not found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@app.get("/sales/{id}")
+async def get_sale(id: str):
+    try:
+        with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == id:
+                    return {"sale": row};
+            return {"message": "Sale not found"};
+    except Exception as e:
+        return {"error": str(e)};
