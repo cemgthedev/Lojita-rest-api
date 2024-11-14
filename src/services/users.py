@@ -162,3 +162,14 @@ async def get_users():
                 return {"message": "No users found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@router.get("/quantity/users")
+async def get_quantity_users():
+    try:
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+        
+            return {"quantity": len(rows)};
+    except Exception as e:
+        return {"error": str(e)}
