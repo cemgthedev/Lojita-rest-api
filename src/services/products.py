@@ -117,3 +117,14 @@ async def get_products():
                 return {"message": "No products found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@router.get("/quantity/products")
+async def get_quantity_products():
+    try:
+        with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+        
+            return {"quantity": len(rows)};
+    except Exception as e:
+        return {"error": str(e)}
