@@ -148,3 +148,17 @@ async def delete_user(id: str):
                 return {"message": "User not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@router.get("/users")
+async def get_users():
+    try:
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            
+            if len(rows) > 0:
+                return {"users": rows};
+            else:
+                return {"message": "No users found"};
+    except Exception as e:
+        return {"error": str(e)}
