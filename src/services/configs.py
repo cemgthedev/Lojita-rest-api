@@ -10,6 +10,15 @@ headers = {
 # Nomeando diretório de armazenamento dos dados
 storage_directory = "data";
 
+# Nomeando arquivos CSV
+file_names = {
+    "users": "users.csv",
+    "messages": "messages.csv",
+    "products": "products.csv",
+    "favorites": "favorites.csv",
+    "sales": "sales.csv"
+};
+
 # Nomeando caminho para os arquivos CSV
 path_directories = {
     "users": f"{storage_directory}/users.csv",
