@@ -458,3 +458,29 @@ async def get_sale(id: str):
             return {"message": "Sale not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@app.delete("/sales/{id}")
+async def delete_sale(id: str):
+    try:
+        with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            deleted = False;
+            
+            for row in rows:
+                if row["id"] == id:
+                    rows.remove(row);
+                    deleted = True;
+                    break;
+            
+            if deleted:
+                with open(path_directories["sales"], mode="w", newline="", encoding="utf-8") as file:
+                    writer = csv.DictWriter(file, fieldnames=headers["sales"]);
+                    writer.writeheader();
+                    writer.writerows(rows);
+                    
+                return {"message": "Sale deleted successfully"};
+            else:
+                return {"message": "Sale not found"};
+    except Exception as e:
+        return {"error": str(e)};
