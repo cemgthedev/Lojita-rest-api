@@ -95,3 +95,17 @@ async def delete_sale(id: str):
                 return {"message": "Sale not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@router.get("/sales")
+async def get_sales():
+    try:
+        with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            
+            if len(rows) > 0:
+                return {"sales": rows};
+            else:
+                return {"message": "No sales found"};
+    except Exception as e:
+        return {"error": str(e)}
