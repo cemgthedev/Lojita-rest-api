@@ -109,3 +109,14 @@ async def get_sales():
                 return {"message": "No sales found"};
     except Exception as e:
         return {"error": str(e)}
+    
+@router.get("/quantity/sales")
+async def get_quantity_sales():
+    try:
+        with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+        
+            return {"quantity": len(rows)};
+    except Exception as e:
+        return {"error": str(e)}
