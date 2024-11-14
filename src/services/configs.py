@@ -2,7 +2,7 @@
 headers = {
     "users": ["id", "name", "year", "cpf", "gender", "phone_number", "address", "email", "password"],
     "messages": ["id", "user_sent_id", "user_received_id", "title", "description", "created_at"],
-    "products": ["id", "seller_id", "title", "description", "category", "price", "quantity", "image_url"],
+    "products": ["id", "seller_id", "title", "description", "price", "quantity", "image_url"],
     "favorites": ["id", "user_id", "product_id"],
     "sales": ["id", "seller_id", "buyer_id", "product_id", "quantity", "created_at"]
 };
