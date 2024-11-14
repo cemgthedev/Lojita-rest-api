@@ -1,11 +1,13 @@
 import datetime as dt
 from models import Message
 from utils.generate_id import generate_id
-from services.configs import headers, path_directories
+from services.configs import headers, file_names, path_directories
 import csv
 import hashlib
+import zipfile
 
 from fastapi import APIRouter
+from fastapi.responses import FileResponse
 
 router = APIRouter()
 
@@ -149,5 +151,26 @@ async def get_hash256_messages():
             
             # Retornando o hash 256 em formato hexadecimal
             return {"hash256": hash256.hexdigest()};
+    except Exception as e:
+        return {"error": str(e)}
+    
+@router.get("/backup/messages")
+async def get_backup_messages():
+    try:
+        # Define o nome do arquivo ZIP e o caminho
+        
+        zip_name = file_names["messages"].replace(".csv", ".zip")
+        zip_path = path_directories["messages"].replace(".csv", ".zip")
+        
+        # Cria o arquivo ZIP e adiciona o CSV nele
+        with zipfile.ZipFile(zip_path, "w") as zip_file:
+            zip_file.write(path_directories["messages"], arcname=file_names["messages"])
+
+        # Retorna o arquivo ZIP para download
+        return FileResponse(
+            path=zip_path,
+            filename=zip_name,
+            media_type="application/zip"
+        )
     except Exception as e:
         return {"error": str(e)}

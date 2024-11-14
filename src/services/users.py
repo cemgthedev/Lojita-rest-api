@@ -4,7 +4,6 @@ from services.configs import headers, file_names, path_directories
 import csv
 import hashlib
 import zipfile
-import os
 
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
