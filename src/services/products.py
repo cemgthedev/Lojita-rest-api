@@ -103,3 +103,17 @@ async def delete_product(id: str):
                 return {"message": "Product not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@router.get("/products")
+async def get_products():
+    try:
+        with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            
+            if len(rows) > 0:
+                return {"products": rows};
+            else:
+                return {"message": "No products found"};
+    except Exception as e:
+        return {"error": str(e)}
