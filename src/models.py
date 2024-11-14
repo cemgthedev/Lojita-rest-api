@@ -35,3 +35,10 @@ class Favorite(BaseModel):
     id: Optional[str] = None
     user_id: str
     product_id: str
+    
+class Sale(BaseModel):
+    id: Optional[str] = None
+    seller_id: str
+    buyer_id: str
+    product_id: str
+    created_at: Optional[date] = None
