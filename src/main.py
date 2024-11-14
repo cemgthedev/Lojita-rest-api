@@ -14,7 +14,7 @@ headers = {
     "messages": ["id", "user_sent_id", "user_received_id", "title", "description", "created_at"],
     "products": ["id", "seller_id", "title", "description", "price", "quantity", "image_url"],
     "favorites": ["id", "user_id", "product_id"],
-    "sales": ["id", "seller_id", "buyer_id", "product_id", "date"]
+    "sales": ["id", "seller_id", "buyer_id", "product_id", "created_at"]
 };
 
 # Nomeando diretório de armazenamento dos dados
@@ -50,7 +50,6 @@ async def create_user(user: User):
             
             # Adicionar a linha com os dados do usuário
             writer.writerow(dict(user));
-        # Aqui, `user` é uma instância da classe `User` contendo os dados da requisição
         return {"message": "User created successfully", "data": user};
     except Exception as e:
         return {"error": str(e)}
@@ -249,7 +248,6 @@ async def create_product(product: Product):
                 
                 # Adicionar a linha com os dados do usuário
                 writer.writerow(dict(product));
-            # Aqui, `user` é uma instância da classe `User` contendo os dados da requisição
             return {"message": "Product created successfully", "data": product};
         else:
             return {"message": "User not found"};
@@ -356,7 +354,6 @@ async def create_favorite(favorite: Favorite):
                 
                 # Adicionar a linha com os dados do usuário
                 writer.writerow(dict(favorite));
-            # Aqui, `user` é uma instância da classe `User` contendo os dados da requisição
             return {"message": "Favorite created successfully", "data": favorite};
         else:
             return {"message": "User or product not found"};
@@ -400,3 +397,52 @@ async def delete_favorite(id: str):
                 return {"message": "Favorite not found"};
     except Exception as e:
         return {"error": str(e)};
+    
+@app.post("/sales")
+async def create_sale(sale: Sale):
+    try:
+        seller_exist = False;
+        
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == sale.seller_id:
+                    seller_exist = True;
+                    break;
+                
+        buyer_exist = False;
+        
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == sale.buyer_id:
+                    buyer_exist = True;
+                    break;
+                
+        product_exist = False;
+        
+        with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["id"] == sale.product_id:
+                    product_exist = True;
+                    break;
+        
+        if seller_exist and buyer_exist and product_exist:
+            # Escrever os dados no arquivo CSV
+            with open(path_directories["sales"], mode="a", newline="", encoding="utf-8") as file:
+                writer = csv.DictWriter(file, fieldnames=headers["sales"]);
+                
+                # Gerando id aleatório
+                sale.id = generate_id(16);
+                
+                # Adicionando data e hora da compra
+                sale.created_at = dt.datetime.now();
+                
+                # Adicionar a linha com os dados do usuário
+                writer.writerow(dict(sale));
+            return {"message": "Sale created successfully", "data": sale};
+        else:
+            return {"message": "Seller, buyer or product not found"};
+    except Exception as e:
+        return {"error": str(e)}
