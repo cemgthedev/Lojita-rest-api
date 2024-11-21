@@ -1,0 +1,29 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  detailed:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: detailed
+    stream: ext://sys.stdout
+
+  file_users:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: "./logs/users.log"
+
+loggers:
+  users:
+    level: DEBUG
+    handlers: [console, file_users]
+    propagate: false
+
+root:
+  level: WARNING
+  handlers: [console]

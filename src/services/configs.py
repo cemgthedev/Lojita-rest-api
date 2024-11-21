@@ -1,3 +1,15 @@
+import logging
+import logging.config
+import yaml
+
+# Carregar configuração do arquivo YAML
+with open('./services/configs.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    logging.config.dictConfig(config)
+
+# Criar loggers específicos
+users_logger = logging.getLogger("users")
+
 # Define os cabeçalhos para cada tabela
 headers = {
     "users": ["id", "name", "year", "cpf", "gender", "phone_number", "address", "email", "password"],
