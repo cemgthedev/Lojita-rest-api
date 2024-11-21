@@ -18,10 +18,21 @@ handlers:
     formatter: detailed
     filename: "./logs/users.log"
 
+  file_messages:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: "./logs/messages.log"
+
 loggers:
   users:
     level: DEBUG
     handlers: [console, file_users]
+    propagate: false
+  
+  messages:
+    level: DEBUG
+    handlers: [console, file_messages]
     propagate: false
 
 root:
