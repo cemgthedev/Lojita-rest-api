@@ -11,6 +11,7 @@ with open('./services/configs.yaml', 'r') as file:
 users_logger = logging.getLogger("users")
 messages_logger = logging.getLogger("messages")
 products_logger = logging.getLogger("products")
+favorites_logger = logging.getLogger("favorites")
 
 # Define os cabeçalhos para cada tabela
 headers = {
