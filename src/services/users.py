@@ -5,7 +5,7 @@ import csv
 import hashlib
 import zipfile
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 
@@ -183,16 +183,33 @@ async def delete_user(id: str):
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/users")
-async def get_users():
+async def get_users(
+    name: str = Query(None, description="Nome do usuário"),
+    address: str = Query(None, description="Endereço do usuário"),
+    gender: str = Query(None, description="Gênero do usuário"),
+    min_age: int = Query(None, description="Idade mínima do usuário"),
+    max_age: int = Query(None, description="Idade.máxima do usuário")
+):
     try:
         logger.info(f"Buscando usuários...")
         with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
             
-            if len(rows) > 0:
+            filtered_rows = [
+                row for row in rows
+                if (
+                    (name is None or name.lower() in row["name"].lower()) and
+                    (address is None or address.lower() in row["address"].lower()) and
+                    (gender is None or gender.lower() == row["gender"].lower()) and
+                    (min_age is None or min_age <= int(row["year"])) and
+                    (max_age is None or max_age >= int(row["year"]))
+                )
+            ]
+            
+            if len(filtered_rows) > 0:
                 logger.info(f"Usuários encontrados com sucesso!")
-                return {"users": rows};
+                return {"users": filtered_rows};
             else:
                 logger.warning(f"Nenhum usuário encontrado!")
                 return {"message": "No users found"};
