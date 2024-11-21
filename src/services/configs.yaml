@@ -24,6 +24,12 @@ handlers:
     formatter: detailed
     filename: "./logs/messages.log"
 
+  file_products:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: "./logs/products.log"
+
 loggers:
   users:
     level: DEBUG
@@ -33,6 +39,11 @@ loggers:
   messages:
     level: DEBUG
     handlers: [console, file_messages]
+    propagate: false
+
+  products:
+    level: DEBUG
+    handlers: [console, file_products]
     propagate: false
 
 root:
