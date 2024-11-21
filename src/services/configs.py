@@ -1,6 +1,10 @@
 import logging
 import logging.config
 import yaml
+from utils.generate_logs import generate_logs
+
+# Inicializando arquivos de logs
+generate_logs();
 
 # Carregar configuração do arquivo YAML
 with open('./services/configs.yaml', 'r') as file:

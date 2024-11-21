@@ -1,5 +1,6 @@
 from models import *
 from utils.generate_tables import generate_tables
+from utils.generate_logs import generate_logs
 from services.configs import headers, storage_directory
 from services.users import router as users_router
 from services.messages import router as messages_router

@@ -46,13 +46,13 @@ async def get_user(id: str):
                 if row["id"] == id:
                     logger.info(f"Usuário encontrado: {row}")
                     return {"user": row};
-            logger.info(f"Usuário com ID {id} não encontrado")
+            logger.warning(f"Usuário com ID {id} não encontrado")
             return {"message": "User not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de usuários não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo usuário: {str(e)}")
+        logger.error(f"Erro ao buscar um usuário: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.put("/users/{id}")
@@ -87,13 +87,13 @@ async def update_user(id: str, user: User):
                 logger.info(f"Usuário atualizado com sucesso!")
                 return {"message": "User updated successfully"};
             else:
-                logger.info(f"Usuário com ID {id} não encontrado")
+                logger.warning(f"Usuário com ID {id} não encontrado")
                 return {"message": "User not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de usuários não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo usuário: {str(e)}")
+        logger.error(f"Erro ao atualizar um usuário: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.delete("/users/{id}")
@@ -111,6 +111,7 @@ async def delete_user(id: str):
                     deleted = True;
                     break;
             
+            logger.info(f"Usuário removido com sucesso!")
             if deleted:
                 with open(path_directories["users"], mode="w", newline="", encoding="utf-8") as file:
                     writer = csv.DictWriter(file, fieldnames=headers["users"]);
@@ -169,8 +170,7 @@ async def delete_user(id: str):
                         writer = csv.DictWriter(file, fieldnames=headers["sales"]);
                         writer.writeheader();
                         writer.writerows(rows);
-                
-                logger.info(f"Usuário removido com sucesso!")
+                        
                 logger.info(f"Dados relacionados ao usuário removidos com sucesso!")
                 return {"message": "User deleted successfully"};
             else:
@@ -179,7 +179,7 @@ async def delete_user(id: str):
         logger.error(f"Arquivo .csv de usuários não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo usuário: {str(e)}")
+        logger.error(f"Erro ao remover um usuário: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/users")
@@ -194,19 +194,19 @@ async def get_users():
                 logger.info(f"Usuários encontrados com sucesso!")
                 return {"users": rows};
             else:
-                logger.info(f"Nenhum usuário encontrado!")
+                logger.warning(f"Nenhum usuário encontrado!")
                 return {"message": "No users found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de usuários não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo usuário: {str(e)}")
+        logger.error(f"Erro ao buscar usuários: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/quantity/users")
 async def get_quantity_users():
     try:
-        logger.info(f"Buscando quantidade de usuários...")
+        logger.info(f"Calculando quantidade de usuários...");
         with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
@@ -217,13 +217,13 @@ async def get_quantity_users():
         logger.error(f"Arquivo .csv de usuários não encontrado: {e}");
         raise HTTPException(status_code=500, detail="XML file not found");
     except Exception as e:
-        logger.error(f"Erro ao criar um novo usuário: {str(e)}");
+        logger.error(f"Erro ao calcular quantidade de usuários: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error");
     
 @router.get("/hash256/users")
 async def get_hash256_users():
     try:
-        logger.info(f"Buscando hash256 de usuários...")
+        logger.info(f"Calculando hash256 de usuários...");
         with open(path_directories["users"], mode="rb") as file:
             hash256 = hashlib.sha256();
             
@@ -234,20 +234,21 @@ async def get_hash256_users():
             for block in iter(lambda: file.read(kbytes), b''):
                 hash256.update(block);
             
-            logger.info(f"Hash256 de usuários gerado com sucesso!");
+            logger.info(f"Hash256 de usuários gerado com sucesso! Hash: {hash256.hexdigest()}");
             # Retornando o hash 256 em formato hexadecimal
             return {"hash256": hash256.hexdigest()};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de usuários não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo usuário: {str(e)}")
+        logger.error(f"Erro ao calcular hash256 de usuários: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/backup/users")
 async def get_backup_users():
     try:
         logger.info(f"Criando backup de usuários...")
+        
         # Define o nome do arquivo ZIP e o caminho
         zip_name = file_names["users"].replace(".csv", ".zip")
         zip_path = path_directories["users"].replace(".csv", ".zip")
@@ -267,5 +268,5 @@ async def get_backup_users():
         logger.error(f"Arquivo .csv de usuários não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo usuário: {str(e)}")
+        logger.error(f"Erro ao criar backup de usuários: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

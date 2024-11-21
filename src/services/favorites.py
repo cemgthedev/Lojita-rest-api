@@ -13,9 +13,9 @@ router = APIRouter()
 @router.post("/favorites")
 async def create_favorite(favorite: Favorite):
     try:
-        logger.info(f"Criando um novo favorito");
-        user_exist = False;
+        logger.info(f"Criando um novo favorito...");
         
+        user_exist = False;
         with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -24,7 +24,6 @@ async def create_favorite(favorite: Favorite):
                     break;
                 
         product_exist = False;
-        
         with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -46,7 +45,10 @@ async def create_favorite(favorite: Favorite):
             logger.info(f"Favorito criado com sucesso!");
             return {"message": "Favorite created successfully", "data": favorite};
         else:
-            logger.info(f"Usuário ou produto do favorito não encontrado!");
+            if not user_exist:
+                logger.warning(f"Usuário do favorito não encontrado!");
+            if not product_exist:    
+                logger.warning(f"Produto do favorito não encontrado!");
             return {"message": "User or product not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de favoritos não encontrado: {e}")
@@ -66,13 +68,13 @@ async def get_favorite(id: str):
                     logger.info(f"Favorito encontrado: {row}");
                     return {"favorite": row};
             
-            logger.info(f"Favorito com ID {id} não encontrado");
+            logger.warning(f"Favorito com ID {id} não encontrado");
             return {"message": "Favorite not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de favoritos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo favorito: {str(e)}")
+        logger.error(f"Erro ao buscar um favorito: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.delete("/favorites/{id}")
@@ -99,25 +101,25 @@ async def delete_favorite(id: str):
                 logger.info(f"Favorito removido com sucesso!");
                 return {"message": "Favorite deleted successfully"};
             else:
-                logger.info(f"Favorito com ID {id} não encontrado");
+                logger.warning(f"Favorito com ID {id} não encontrado");
                 return {"message": "Favorite not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de favoritos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo favorito: {str(e)}")
+        logger.error(f"Erro ao remover um favorito: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/favorites")
 async def get_favorites():
     try:
-        logger.info(f"Buscando todos os favoritos");
+        logger.info(f"Buscando favoritos...");
         with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
             
             if len(rows) > 0:
-                logger.info(f"Quantidade de favoritos encontrados: {len(rows)}")
+                logger.info(f"Favoritos encontrados com sucesso!")
                 return {"favorites": rows};
             else:
                 logger.info(f"Nenhum favorito encontrado");
@@ -131,7 +133,7 @@ async def get_favorites():
     
 @router.get("/quantity/favorites")
 async def get_quantity_favorites():
-    logger.info(f"Buscando quantidade de favoritos");
+    logger.info(f"Calculando quantidade de favoritos...");
     try:
         with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
@@ -143,13 +145,13 @@ async def get_quantity_favorites():
         logger.error(f"Arquivo .csv de favoritos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo favorito: {str(e)}")
+        logger.error(f"Erro ao calcular quantidade de favoritos: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/hash256/favorites")
 async def get_hash256_favorites():
     try:
-        logger.info(f"Buscando hash256 de favoritos");
+        logger.info(f"Calculando hash256 de favoritos...");
         with open(path_directories["favorites"], mode="rb") as file:
             hash256 = hashlib.sha256();
             
@@ -160,14 +162,14 @@ async def get_hash256_favorites():
             for block in iter(lambda: file.read(kbytes), b''):
                 hash256.update(block);
             
-            logger.info(f"Hash256 de favoritos gerado com sucesso!");
+            logger.info(f"Hash256 de favoritos gerado com sucesso! Hash: {hash256.hexdigest()}");
             # Retornando o hash 256 em formato hexadecimal
             return {"hash256": hash256.hexdigest()};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de favoritos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo favorito: {str(e)}")
+        logger.error(f"Erro ao calcular hash256 de favoritos: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/backup/favorites")
@@ -194,5 +196,5 @@ async def get_backup_favorites():
         logger.error(f"Arquivo .csv de favoritos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo favorito: {str(e)}")
+        logger.error(f"Erro ao criar backup de favoritos: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

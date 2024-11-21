@@ -25,6 +25,7 @@ def generate_tables(directory_name, headers):
     # Cria o diretório "data" se ele ainda não existir
     os.makedirs(directory_name, exist_ok=True);
     
+    print("Gerando arquivos CSV...");
     # Cria um arquivo CSV para cada tabela
     for table, header in headers.items():
         create_csv(directory_name, f"{table}.csv", header);
