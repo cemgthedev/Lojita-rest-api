@@ -10,6 +10,7 @@ with open('./services/configs.yaml', 'r') as file:
 # Criar loggers específicos
 users_logger = logging.getLogger("users")
 messages_logger = logging.getLogger("messages")
+products_logger = logging.getLogger("products")
 
 # Define os cabeçalhos para cada tabela
 headers = {
