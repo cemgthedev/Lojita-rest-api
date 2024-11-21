@@ -14,10 +14,10 @@ router = APIRouter()
 @router.post("/messages")
 async def create_message(message: Message):
     try:
-        logger.info(f"Criando uma nova mensagem");
+        logger.info(f"Criando uma nova mensagem...");
+        
         sent_exist = False;
         receiver_exist = False;
-        
         with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -43,7 +43,10 @@ async def create_message(message: Message):
                 logger.info(f"Mensagem criada com sucesso!");
                 return {"message": "Message created successfully", "data": message};
         else:
-            logger.info(f"Usuário com ID {message.user_sent_id} ou {message.user_received_id} não encontrado");
+            if not sent_exist:
+                logger.warning(f"Usuário com ID {message.user_sent_id} não encontrado");
+            if not receiver_exist:
+                logger.warning(f"Usuário com ID {message.user_received_id} não encontrado");
             return {"message": "User not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
@@ -62,13 +65,13 @@ async def get_message(id: str):
                 if row["id"] == id:
                     logger.info(f"Mensagem encontrada: {row}")
                     return {"message": row};
-            logger.info(f"Mensagem com ID {id} não encontrada")
+            logger.warning(f"Mensagem com ID {id} não encontrada")
             return {"message": "Message not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova mensagem: {str(e)}")
+        logger.error(f"Erro ao buscar uma mensagem: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.put("/messages/{id}")
@@ -97,13 +100,13 @@ async def update_message(id: str, message: Message):
                 logger.info(f"Mensagem atualizada com sucesso!");
                 return {"message": "Message updated successfully"};
             else:
-                logger.info(f"Mensagem com ID {id} não encontrada")
+                logger.warning(f"Mensagem com ID {id} não encontrada")
                 return {"message": "Message not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova mensagem: {str(e)}")
+        logger.error(f"Erro ao atualizar uma mensagem: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.delete("/messages/{id}")
@@ -130,13 +133,13 @@ async def delete_message(id: str):
                 logger.info(f"Mensagem removida com sucesso!");
                 return {"message": "Message deleted successfully"};
             else:
-                logger.info(f"Mensagem com ID {id} não encontrada")
+                logger.warning(f"Mensagem com ID {id} não encontrada")
                 return {"message": "Message not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova mensagem: {str(e)}")
+        logger.error(f"Erro ao remover uma mensagem: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/messages")
@@ -157,13 +160,13 @@ async def get_messages():
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova mensagem: {str(e)}")
+        logger.error(f"Erro ao buscar mensagens: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/quantity/messages")
 async def get_quantity_messages():
     try:
-        logger.info(f"Buscando quantidade de mensagens...")
+        logger.info(f"Calculando quantidade de mensagens...");
         with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
@@ -174,13 +177,13 @@ async def get_quantity_messages():
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova mensagem: {str(e)}")
+        logger.error(f"Erro ao calcular quantidade de mensagens: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/hash256/messages")
 async def get_hash256_messages():
     try:
-        logger.info(f"Buscando hash256 de mensagens...")
+        logger.info(f"Calculando hash256 de mensagens...");
         with open(path_directories["messages"], mode="rb") as file:
             hash256 = hashlib.sha256();
             
@@ -191,20 +194,21 @@ async def get_hash256_messages():
             for block in iter(lambda: file.read(kbytes), b''):
                 hash256.update(block);
             
-            logger.info(f"Hash256 de mensagens gerado com sucesso!")
+            logger.info(f"Hash256 de mensagens gerado com sucesso! Hash: {hash256.hexdigest()}");
             # Retornando o hash 256 em formato hexadecimal
             return {"hash256": hash256.hexdigest()};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova mensagem: {str(e)}")
+        logger.error(f"Erro ao calcular hash256 de mensagens: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/backup/messages")
 async def get_backup_messages():
     try:
         logger.info(f"Criando backup de mensagens...")
+        
         # Define o nome do arquivo ZIP e o caminho
         zip_name = file_names["messages"].replace(".csv", ".zip")
         zip_path = path_directories["messages"].replace(".csv", ".zip")
@@ -224,5 +228,5 @@ async def get_backup_messages():
         logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova mensagem: {str(e)}")
+        logger.error(f"Erro ao criar backup de mensagens: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

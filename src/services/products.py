@@ -13,9 +13,9 @@ router = APIRouter()
 @router.post("/products")
 async def create_product(product: Product):
     try:
-        logger.info(f"Criando um novo produto");
-        seller_exist = False;
+        logger.info(f"Criando um novo produto...");
         
+        seller_exist = False;
         with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -37,7 +37,7 @@ async def create_product(product: Product):
             logger.info(f"Produto criado com sucesso!");
             return {"message": "Product created successfully", "data": product};
         else:
-            logger.error(f"Usuário do produto não encontrado!");
+            logger.warning(f"Usuário do produto não encontrado!");
             return {"message": "User not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
@@ -57,13 +57,13 @@ async def get_product(id: str):
                     logger.info(f"Produto encontrado: {row}")
                     return {"product": row};
             
-            logger.error(f"Produto com ID: {id} nao encontrado");
+            logger.warning(f"Produto com ID: {id} não encontrado");
             return {"message": "Product not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo produto: {str(e)}")
+        logger.error(f"Erro ao buscar um produto: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.put("/products/{id}")
@@ -96,13 +96,13 @@ async def update_product(id: str, product: Product):
                 logger.info(f"Produto atualizado com sucesso!");
                 return {"message": "Product updated successfully"};
             else:
-                logger.info(f"Produto com ID: {id} não encontrado");
+                logger.warning(f"Produto com ID: {id} não encontrado");
                 return {"message": "Product not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo produto: {str(e)}")
+        logger.error(f"Erro ao atualizar um produto: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.delete("/products/{id}")
@@ -129,40 +129,40 @@ async def delete_product(id: str):
                 logger.info(f"Produto deletado com sucesso!");
                 return {"message": "Product deleted successfully"};
             else:
-                logger.error(f"Produto com ID: {id} não encontrado");
+                logger.warning(f"Produto com ID: {id} não encontrado");
                 return {"message": "Product not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo produto: {str(e)}")
+        logger.error(f"Erro ao remover um produto: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/products")
 async def get_products():
     try:
-        logger.info(f"Buscando todos os produtos")
+        logger.info(f"Buscando produtos...")
         with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
             
             if len(rows) > 0:
-                logger.info(f"Produtos encontrados: {rows}")
+                logger.info(f"Produtos encontrados com sucesso!")
                 return {"products": rows};
             else:
-                logger.info(f"Nenhum produto encontrado!")
+                logger.warning(f"Nenhum produto encontrado!")
                 return {"message": "No products found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo produto: {str(e)}")
+        logger.error(f"Erro ao buscar produtos: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/quantity/products")
 async def get_quantity_products():
     try:
-        logger.info(f"Buscando quantidade de produtos...")
+        logger.info(f"Calculando quantidade de produtos...");
         with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
@@ -173,13 +173,13 @@ async def get_quantity_products():
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo produto: {str(e)}")
+        logger.error(f"Erro ao calcular quantidade de produtos: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/hash256/products")
 async def get_hash256_products():
     try:
-        logger.info(f"Buscando hash256 de produtos...")
+        logger.info(f"Calculando hash256 de produtos...");
         with open(path_directories["products"], mode="rb") as file:
             hash256 = hashlib.sha256();
             
@@ -190,14 +190,14 @@ async def get_hash256_products():
             for block in iter(lambda: file.read(kbytes), b''):
                 hash256.update(block);
             
-            logger.info(f"Hash256 de produtos gerado com sucesso!")
+            logger.info(f"Hash256 de produtos gerado com sucesso! Hash: {hash256.hexdigest()}");
             # Retornando o hash 256 em formato hexadecimal
             return {"hash256": hash256.hexdigest()};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo produto: {str(e)}")
+        logger.error(f"Erro ao calcular hash256 de produtos: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/backup/products")
@@ -224,5 +224,5 @@ async def get_backup_products():
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar um novo produto: {str(e)}")
+        logger.error(f"Erro ao criar backup de produtos: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

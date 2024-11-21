@@ -14,9 +14,9 @@ router = APIRouter()
 @router.post("/sales")
 async def create_sale(sale: Sale):
     try:
-        logger.info(f"Criando uma nova venda");
-        seller_exist = False;
+        logger.info(f"Criando uma nova venda...");
         
+        seller_exist = False;
         with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -25,7 +25,6 @@ async def create_sale(sale: Sale):
                     break;
                 
         buyer_exist = False;
-        
         with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -34,7 +33,6 @@ async def create_sale(sale: Sale):
                     break;
                 
         product_exist = False;
-        
         with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -59,7 +57,12 @@ async def create_sale(sale: Sale):
             logger.info(f"Venda criada com sucesso!");
             return {"message": "Sale created successfully", "data": sale};
         else:
-            logger.info(f"Vendedora, comprador ou produto não encontrado");
+            if not seller_exist:
+                logger.warning(f"Vendedora não encontrada");
+            if not buyer_exist:
+                logger.warning(f"Comprador não encontrado");
+            if not product_exist:
+                logger.warning(f"Produto não encontrado");
             return {"message": "Seller, buyer or product not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de vendas não encontrado: {e}")
@@ -71,7 +74,7 @@ async def create_sale(sale: Sale):
 @router.get("/sales/{id}")
 async def get_sale(id: str):
     try:
-        logger.info(f"Buscando uma venda");
+        logger.info(f"Buscando venda com ID: {id}")
         with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             for row in reader:
@@ -79,13 +82,13 @@ async def get_sale(id: str):
                     logger.info(f"Venda encontrada: {row}")
                     return {"sale": row};
                 
-            logger.info(f"Venda com ID {id} não encontrada")
+            logger.warning(f"Venda com ID {id} não encontrada")
             return {"message": "Sale not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de vendas não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova venda: {str(e)}")
+        logger.error(f"Erro ao buscar uma venda: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.delete("/sales/{id}")
@@ -112,13 +115,13 @@ async def delete_sale(id: str):
                 logger.info(f"Venda removida com sucesso!");
                 return {"message": "Sale deleted successfully"};
             else:
-                logger.info(f"Venda com ID {id} não encontrada")
+                logger.warning(f"Venda com ID {id} não encontrada")
                 return {"message": "Sale not found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de vendas não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova venda: {str(e)}")
+        logger.error(f"Erro ao remover uma venda: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/sales")
@@ -130,21 +133,22 @@ async def get_sales():
             rows = list(reader);
             
             if len(rows) > 0:
-                logger.info(f"{len(rows)} vendas encontradas");
+                logger.info(f"Vendas encontradas com sucesso!")
                 return {"sales": rows};
             else:
-                logger.info(f"Nenhuma venda encontrada");
+                logger.warning(f"Nenhuma venda encontrada");
                 return {"message": "No sales found"};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de vendas não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova venda: {str(e)}")
+        logger.error(f"Erro ao buscar vendas: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/quantity/sales")
 async def get_quantity_sales():
     try:
+        logger.info(f"Calculando quantidade de vendas...");
         with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
@@ -155,13 +159,13 @@ async def get_quantity_sales():
         logger.error(f"Arquivo .csv de vendas não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova venda: {str(e)}")
+        logger.error(f"Erro ao calcular quantidade de vendas: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/hash256/sales")
 async def get_hash256_sales():
     try:
-        logger.info(f"Calculando hash 256 das vendas");
+        logger.info(f"Calculando hash256 de vendas...");
         with open(path_directories["sales"], mode="rb") as file:
             hash256 = hashlib.sha256();
             
@@ -172,20 +176,21 @@ async def get_hash256_sales():
             for block in iter(lambda: file.read(kbytes), b''):
                 hash256.update(block);
             
-            logger.info(f"Hash 256 das vendas gerado com sucesso!");
+            logger.info(f"Hash256 de vendas gerado com sucesso! Hash: {hash256.hexdigest()}");
             # Retornando o hash 256 em formato hexadecimal
             return {"hash256": hash256.hexdigest()};
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de vendas não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova venda: {str(e)}")
+        logger.error(f"Erro ao calcular hash256 de vendas: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/backup/sales")
 async def get_backup_sales():
     try:
-        logger.info(f"Criando backup de vendas...");
+        logger.info(f"Criando backup de vendas...")
+        
         # Define o nome do arquivo ZIP e o caminho
         zip_name = file_names["sales"].replace(".csv", ".zip")
         zip_path = path_directories["sales"].replace(".csv", ".zip")
@@ -205,5 +210,5 @@ async def get_backup_sales():
         logger.error(f"Arquivo .csv de vendas não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
     except Exception as e:
-        logger.error(f"Erro ao criar uma nova venda: {str(e)}")
+        logger.error(f"Erro ao criar backup de vendas: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
