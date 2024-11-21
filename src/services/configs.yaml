@@ -36,6 +36,12 @@ handlers:
     formatter: detailed
     filename: "./logs/favorites.log"
 
+  file_sales:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: "./logs/sales.log"
+
 loggers:
   users:
     level: DEBUG
@@ -55,6 +61,11 @@ loggers:
   favorites:
     level: DEBUG
     handlers: [console, file_favorites]
+    propagate: false
+
+  sales:
+    level: DEBUG
+    handlers: [console, file_sales]
     propagate: false
 
 root:
