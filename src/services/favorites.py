@@ -5,7 +5,7 @@ import csv
 import hashlib
 import zipfile
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -111,16 +111,23 @@ async def delete_favorite(id: str):
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/favorites")
-async def get_favorites():
+async def get_favorites(
+    user_id: str = Query(None, description="Id do usuário"),
+):
     try:
         logger.info(f"Buscando favoritos...");
         with open(path_directories["favorites"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
             
-            if len(rows) > 0:
+            filtered_rows = [
+                row for row in rows 
+                if (user_id is None or user_id == row["user_id"])
+            ]
+            
+            if len(filtered_rows) > 0:
                 logger.info(f"Favoritos encontrados com sucesso!")
-                return {"favorites": rows};
+                return {"favorites": filtered_rows};
             else:
                 logger.info(f"Nenhum favorito encontrado");
                 return {"message": "No favorites found"};
