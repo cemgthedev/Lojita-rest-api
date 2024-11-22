@@ -5,7 +5,7 @@ import csv
 import hashlib
 import zipfile
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -139,16 +139,33 @@ async def delete_product(id: str):
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/products")
-async def get_products():
+async def get_products(
+    subject: str = Query(None, description="Assunto do produto"),
+    min_price: float = Query(None, description="Preço mínimo do produto"),
+    max_price: float = Query(None, description="Preço máximo do produto"),
+    category: str = Query(None, description="Categoria do produto"),
+    min_quantity: int = Query(None, description="Quantidade mínima de produtos"),
+    max_quantity: int = Query(None, description="Quantidade máxima de produtos")
+):
     try:
         logger.info(f"Buscando produtos...")
         with open(path_directories["products"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
             
-            if len(rows) > 0:
+            filtered_rows = [
+                row for row in rows
+                if (subject is None or subject.lower() in row["title"].lower() + row["description"].lower()) and
+                   (min_price is None or min_price <= float(row["price"])) and
+                   (max_price is None or max_price >= float(row["price"])) and
+                   (category is None or category.lower() in row["category"].lower()) and
+                   (min_quantity is None or min_quantity <= int(row["quantity"])) and
+                   (max_quantity is None or max_quantity >= int(row["quantity"]))
+            ]
+            
+            if len(filtered_rows) > 0:
                 logger.info(f"Produtos encontrados com sucesso!")
-                return {"products": rows};
+                return {"products": filtered_rows};
             else:
                 logger.warning(f"Nenhum produto encontrado!")
                 return {"message": "No products found"};
