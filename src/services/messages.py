@@ -1,4 +1,4 @@
-import datetime as dt
+from datetime import datetime as dt
 from models import Message
 from utils.generate_id import generate_id
 from services.configs import headers, file_names, path_directories, messages_logger as logger
@@ -6,7 +6,7 @@ import csv
 import hashlib
 import zipfile
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -35,7 +35,7 @@ async def create_message(message: Message):
                 # Gerando id aleatório
                 message.id = generate_id(16);
                 # Adicionando data e hora do envio da mensagem
-                message.created_at = dt.datetime.now();
+                message.created_at = dt.now();
                 
                 # Adicionar a linha com os dados da requisição
                 writer.writerow(dict(message));
@@ -143,16 +143,27 @@ async def delete_message(id: str):
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/messages")
-async def get_messages():
+async def get_messages(
+    subject: str = Query(None, description="Assunto da mensagem"),
+    min_datetime: dt = Query(None, description="Data e horário mínimo da mensagem"),
+    max_datetime: dt = Query(None, description="Data e horário máximo da mensagem")
+):
     try:
         logger.info(f"Buscando mensagens...")
         with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
             
-            if len(rows) > 0:
+            filtered_rows = [
+                row for row in rows
+                if (subject is None or subject.lower() in row["title"].lower() + row["description"].lower()) and
+                   (min_datetime is None or min_datetime <= dt.fromisoformat(row["created_at"])) and
+                   (max_datetime is None or max_datetime >= dt.fromisoformat(row["created_at"]))
+            ]
+            
+            if len(filtered_rows) > 0:
                 logger.info(f"Mensagens encontradas com sucesso!")
-                return {"messages": rows};
+                return {"messages": filtered_rows};
             else:
                 logger.info(f"Nenhuma mensagem encontrada!")
                 return {"message": "No messages found"};
