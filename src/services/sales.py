@@ -6,7 +6,7 @@ import csv
 import hashlib
 import zipfile
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -125,16 +125,33 @@ async def delete_sale(id: str):
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/sales")
-async def get_sales():
+async def get_sales(
+    seller_id: str = Query(None, description="Id do vendedor"),
+    buyer_id: str = Query(None, description="Id do comprador"),
+    min_quantity: int = Query(None, description="Quantidade mínima de produtos"),
+    max_quantity: int = Query(None, description="Quantidade máxima de produtos"),
+    min_datetime: dt = Query(None, description="Data e horário mínimo da compra"),
+    max_datetime: dt = Query(None, description="Data e horário máximo da compra")
+):
     try:
         logger.info(f"Buscando todas as vendas");
         with open(path_directories["sales"], mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file);
             rows = list(reader);
             
-            if len(rows) > 0:
+            filtered_rows = [
+                row for row in rows
+                if (seller_id is None or seller_id == row["seller_id"]) and
+                   (buyer_id is None or buyer_id == row["buyer_id"]) and
+                   (min_quantity is None or min_quantity <= int(row["quantity"])) and
+                   (max_quantity is None or max_quantity >= int(row["quantity"])) and
+                   (min_datetime is None or min_datetime <= dt.fromisoformat(row["created_at"])) and
+                   (max_datetime is None or max_datetime >= dt.fromisoformat(row["created_at"]))
+            ]
+            
+            if len(filtered_rows) > 0:
                 logger.info(f"Vendas encontradas com sucesso!")
-                return {"sales": rows};
+                return {"sales": filtered_rows};
             else:
                 logger.warning(f"Nenhuma venda encontrada");
                 return {"message": "No sales found"};
