@@ -67,7 +67,7 @@ async def update_user(id: str, user: User):
             for row in rows:
                 if row["id"] == id:
                     row["name"] = user.name;
-                    row["year"] = user.year;
+                    row["age"] = user.age;
                     row["cpf"] = user.cpf;
                     row["gender"] = user.gender;
                     row["phone_number"] = user.phone_number;
@@ -202,8 +202,8 @@ async def get_users(
                     (name is None or name.lower() in row["name"].lower()) and
                     (address is None or address.lower() in row["address"].lower()) and
                     (gender is None or gender.lower() == row["gender"].lower()) and
-                    (min_age is None or min_age <= int(row["year"])) and
-                    (max_age is None or max_age >= int(row["year"]))
+                    (min_age is None or min_age <= int(row["age"])) and
+                    (max_age is None or max_age >= int(row["age"]))
                 )
             ]
             

@@ -3,7 +3,7 @@ import os
 
 # Define os cabeçalhos para cada tabela
 headers = {
-    "users": ["id", "name", "year", "cpf", "gender", "phone_number", "address", "email", "password"],
+    "users": ["id", "name", "age", "cpf", "gender", "phone_number", "address", "email", "password"],
     "messages": ["id", "user_sent_id", "user_received_id", "title", "description"],
     "products": ["id", "seller_id", "title", "description", "price", "quantity"],
     "favorites": ["id", "user_id", "product_id"],

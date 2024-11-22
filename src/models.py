@@ -6,7 +6,7 @@ from datetime import datetime as dt
 class User(BaseModel):
     id: Optional[str] = None
     name: str
-    year: Optional[int] = None
+    age: Optional[int] = None
     cpf: str
     gender: Optional[str] = None
     phone_number: Optional[str] = None
