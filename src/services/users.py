@@ -17,6 +17,13 @@ router = APIRouter()
 async def create_user(user: User):
     try:
         logger.info(f"Criando um novo usuário...")
+        with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            for row in reader:
+                if row["email"] == user.email:
+                    logger.warning(f"O email {user.email} já está cadastrado!")
+                    return {"message": "Email already exists"}
+                
         # Escrever os dados no arquivo CSV
         with open(path_directories["users"], mode="a", newline="", encoding="utf-8") as file:
             writer = csv.DictWriter(file, fieldnames=headers["users"]);
@@ -188,7 +195,9 @@ async def get_users(
     address: str = Query(None, description="Endereço do usuário"),
     gender: str = Query(None, description="Gênero do usuário"),
     min_age: int = Query(None, description="Idade mínima do usuário"),
-    max_age: int = Query(None, description="Idade.máxima do usuário")
+    max_age: int = Query(None, description="Idade.máxima do usuário"),
+    email: str = Query(None, description="Email do usuário"),
+    password: str = Query(None, description="Senha do usuário"),
 ):
     try:
         logger.info(f"Buscando usuários...")
@@ -203,7 +212,9 @@ async def get_users(
                     (address is None or address.lower() in row["address"].lower()) and
                     (gender is None or gender.lower() == row["gender"].lower()) and
                     (min_age is None or min_age <= int(row["age"])) and
-                    (max_age is None or max_age >= int(row["age"]))
+                    (max_age is None or max_age >= int(row["age"])) and
+                    (email is None or email == row["email"]) and
+                    (password is None or password == row["password"])
                 )
             ]
             

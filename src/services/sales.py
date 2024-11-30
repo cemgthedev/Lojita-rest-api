@@ -1,4 +1,4 @@
-import datetime as dt
+from datetime import datetime as dt
 from models import Sale
 from utils.generate_id import generate_id
 from services.configs import headers, file_names, path_directories, sales_logger as logger
@@ -49,7 +49,7 @@ async def create_sale(sale: Sale):
                 sale.id = generate_id(16);
                 
                 # Adicionando data e hora da compra
-                sale.created_at = dt.datetime.now();
+                sale.created_at = dt.now();
                 
                 # Adicionar a linha com os dados do usuário
                 writer.writerow(dict(sale));
