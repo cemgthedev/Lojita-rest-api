@@ -146,7 +146,9 @@ async def delete_message(id: str):
 async def get_messages(
     subject: str = Query(None, description="Assunto da mensagem"),
     min_datetime: dt = Query(None, description="Data e horário mínimo da mensagem"),
-    max_datetime: dt = Query(None, description="Data e horário máximo da mensagem")
+    max_datetime: dt = Query(None, description="Data e horário máximo da mensagem"),
+    fst_user_id: str = Query(None, description="ID do primeiro usuário da mensagem"),
+    snd_user_id: str = Query(None, description="ID do segundo usuário da mensagem")
 ):
     try:
         logger.info(f"Buscando mensagens...")
@@ -156,10 +158,22 @@ async def get_messages(
             
             filtered_rows = [
                 row for row in rows
-                if (subject is None or subject.lower() in row["title"].lower() + row["description"].lower()) and
-                   (min_datetime is None or min_datetime <= dt.fromisoformat(row["created_at"])) and
-                   (max_datetime is None or max_datetime >= dt.fromisoformat(row["created_at"]))
+                if (
+                    (subject is None or subject.lower() in (row["title"].lower() + row["description"].lower())) and
+                    (min_datetime is None or min_datetime <= dt.fromisoformat(row["created_at"])) and
+                    (max_datetime is None or max_datetime >= dt.fromisoformat(row["created_at"])) and
+                    (
+                        fst_user_id is None or snd_user_id is None or
+                        (
+                            fst_user_id == row["user_sent_id"] and snd_user_id == row["user_received_id"] or
+                            fst_user_id == row["user_received_id"] and snd_user_id == row["user_sent_id"]
+                        )
+                    )
+                )
             ]
+            
+            # Ordenação decrescente das mensagens por data (semelhante a ordem cronológica de um chat)
+            filtered_rows.sort(key=lambda x: dt.fromisoformat(x["created_at"]), reverse=True)
             
             if len(filtered_rows) > 0:
                 logger.info(f"Mensagens encontradas com sucesso!")
