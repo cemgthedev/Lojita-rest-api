@@ -20,7 +20,7 @@ sales_logger = logging.getLogger("sales")
 
 # Define os cabeçalhos para cada tabela
 headers = {
-    "users": ["id", "name", "year", "cpf", "gender", "phone_number", "address", "email", "password"],
+    "users": ["id", "name", "age", "cpf", "gender", "phone_number", "address", "email", "password"],
     "messages": ["id", "user_sent_id", "user_received_id", "title", "description", "created_at"],
     "products": ["id", "seller_id", "title", "description", "category", "price", "quantity", "image_url"],
     "favorites": ["id", "user_id", "product_id"],

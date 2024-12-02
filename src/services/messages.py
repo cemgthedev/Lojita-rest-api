@@ -241,3 +241,48 @@ async def get_backup_messages():
     except Exception as e:
         logger.error(f"Erro ao criar backup de mensagens: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
+    
+@router.get("/chats/{id}")
+async def get_chats(id: str):
+    try:
+        logger.info(f"Buscando chats...")
+        with open(path_directories["messages"], mode="r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file);
+            rows = list(reader);
+            
+            # Filtra os IDs únicos conforme a lógica
+            filtered_ids = set()
+            for row in rows:
+                if row["user_sent_id"] == id:
+                    filtered_ids.add(row["user_received_id"])
+                elif row["user_received_id"] == id:
+                    filtered_ids.add(row["user_sent_id"])
+
+            if filtered_ids:
+                logger.info("Chats encontrados com sucesso!")
+                chats = list(filtered_ids)
+                
+                with open(path_directories["users"], mode="r", newline="", encoding="utf-8") as file:
+                    reader = csv.DictReader(file);
+                    rows = list(reader);
+                    
+                    users = [
+                        {
+                            "id": row["id"], 
+                            "name": row["name"],
+                            "age": row["age"],
+                            "phone_number": row["phone_number"],
+                            "gender": row["gender"],
+                            "address": row["address"],
+                        }
+                        for row in rows if row["id"] in chats
+                    ]
+                    
+                    logger.info("Chats retornados com sucesso!")
+                    return {"chats": users}
+            else:
+                logger.warning("Nenhum chat encontrado!")
+                return {"message": "No chats found"}
+    except FileNotFoundError as e:
+        logger.error(f"Arquivo .csv de mensagens não encontrado: {e}")
+        raise HTTPException(status_code=500, detail="XML file not found")
