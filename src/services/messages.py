@@ -173,7 +173,7 @@ async def get_messages(
             ]
             
             # Ordenação decrescente das mensagens por data (semelhante a ordem cronológica de um chat)
-            filtered_rows.sort(key=lambda x: dt.fromisoformat(x["created_at"]), reverse=True)
+            filtered_rows.sort(key=lambda x: dt.fromisoformat(x["created_at"]))
             
             if len(filtered_rows) > 0:
                 logger.info(f"Mensagens encontradas com sucesso!")
