@@ -22,7 +22,7 @@ async def create_user(user: User):
             for row in reader:
                 if row["email"] == user.email:
                     logger.warning(f"O email {user.email} já está cadastrado!")
-                    return {"message": "Email already exists"}
+                    raise HTTPException(status_code=409, detail="O email já está cadastrado!")
                 
         # Escrever os dados no arquivo CSV
         with open(path_directories["users"], mode="a", newline="", encoding="utf-8") as file:
