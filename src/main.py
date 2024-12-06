@@ -9,8 +9,18 @@ from services.favorites import router as favorites_router
 from services.sales import router as sales_router
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Configuração do CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Origens permitidas
+    allow_credentials=True,
+    allow_methods=["*"],  # Permitir todos os métodos HTTP (GET, POST, etc.)
+    allow_headers=["*"],  # Permitir todos os headers
+)
 
 # Inicializando arquivos CSV
 generate_tables(storage_directory, headers);
