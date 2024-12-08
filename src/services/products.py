@@ -38,7 +38,7 @@ async def create_product(product: Product):
             return {"message": "Product created successfully", "data": product};
         else:
             logger.warning(f"Usuário do produto não encontrado!");
-            return {"message": "User not found"};
+            raise HTTPException(status_code=500, detail="Usuário do produto não encontrado!");
     except FileNotFoundError as e:
         logger.error(f"Arquivo .csv de produtos não encontrado: {e}")
         raise HTTPException(status_code=500, detail="XML file not found")
@@ -140,6 +140,7 @@ async def delete_product(id: str):
     
 @router.get("/products")
 async def get_products(
+    seller_id: str = Query(None, description="Assunto do produto"),
     subject: str = Query(None, description="Assunto do produto"),
     min_price: float = Query(None, description="Preço mínimo do produto"),
     max_price: float = Query(None, description="Preço máximo do produto"),
@@ -155,7 +156,8 @@ async def get_products(
             
             filtered_rows = [
                 row for row in rows
-                if (subject is None or subject.lower() in row["title"].lower() + row["description"].lower()) and
+                if (seller_id is None or seller_id == row["seller_id"]) and
+                   (subject is None or subject.lower() in row["title"].lower() + row["description"].lower()) and
                    (min_price is None or min_price <= float(row["price"])) and
                    (max_price is None or max_price >= float(row["price"])) and
                    (category is None or category.lower() in row["category"].lower()) and
